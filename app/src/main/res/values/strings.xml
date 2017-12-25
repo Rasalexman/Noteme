@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">NoteMe</string>
+    <string name="add_note_title">Новая заметка</string>
+    <string name="edit_note_title">Заметка</string>
+    <string name="note_title">Заголовок</string>
+    <string name="note_body">Текст</string>
+    <string name="search_title">Поиск</string>
+    <string name="save_article">Сохранить</string>
+</resources>

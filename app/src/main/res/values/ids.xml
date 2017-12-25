@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="main_appbar" type="id" />
+    <item name="rv_controller" type="id" />
+    <item name="button_add_note_id" type="id" />
+    <item name="app_bar_search" type="id" />
+    <item name="note_title_id" type="id" />
+    <item name="note_body_id" type="id" />
+    <item name="save_button_id" type="id" />
+    <item name="note_item_id" type="id" />
+    <item name="note_title" type="id" />
+    <item name="note_date" type="id" />
+    <item name="note_text" type="id" />
+</resources>
