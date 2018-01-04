@@ -20,10 +20,10 @@ import kotlinx.coroutines.experimental.launch
 class MainPagePresenter : MainPageContract.Presenter {
 
     override var view: MainPageContract.View? = null
-    private val mAllNotes:MutableList<NoteItem> = mutableListOf()
-    private var mSearchedNotes:MutableList<NoteItem> = mutableListOf()
+    private val mAllNotes: MutableList<NoteItem> = mutableListOf()
+    private var mSearchedNotes: MutableList<NoteItem> = mutableListOf()
 
-    private var lastSearch:String = ""
+    private var lastSearch: String = ""
 
     override fun start() {
         launch(UI) {
@@ -36,14 +36,18 @@ class MainPagePresenter : MainPageContract.Presenter {
             }
 
             val result = async(CommonPool) {
-                if(mAllNotes.size > 0) {
+                if (mAllNotes.size > 0) {
                     val first = mAllNotes.first()
-                    (select from NoteModel::class where(createDate greaterThan first.note.createDate!!)).list
-                }else {
+                    (select from NoteModel::class where (createDate greaterThan first.note.createDate!!)).list
+                } else {
                     (select from NoteModel::class).orderBy(NoteModel_Table.createDate, true).list
                 }
-            }
-            createNoteItems(result.await(), mAllNotes)
+            }.await()
+
+            async(CommonPool) {
+                createNoteItems(result, mAllNotes)
+            }.await()
+
             view?.showNotes(mAllNotes)
         }
     }
@@ -58,12 +62,15 @@ class MainPagePresenter : MainPageContract.Presenter {
             mSearchedNotes.clear()
             view?.showLoadingFooter()
 
-            val result = async(CommonPool){
+            val result = async(CommonPool) {
                 val pattern = "%$s%"
-                (select from NoteModel::class where(title.like(pattern) or text.like(pattern))).orderBy(NoteModel_Table.createDate, true).list
+                (select from NoteModel::class where (title.like(pattern) or text.like(pattern))).orderBy(NoteModel_Table.createDate, true).list
             }.await()
 
-            createNoteItems(result, mSearchedNotes)
+            async(CommonPool) {
+                createNoteItems(result, mSearchedNotes)
+            }.await()
+
             view?.showNotes(mSearchedNotes)
         }
     }
@@ -78,7 +85,7 @@ class MainPagePresenter : MainPageContract.Presenter {
         mSearchedNotes.clear()
     }
 
-    private suspend fun createNoteItems(notes:List<NoteModel>, mapper:MutableList<NoteItem>){
+    private suspend fun createNoteItems(notes: List<NoteModel>, mapper: MutableList<NoteItem>) {
         notes.forEach {
             mapper.add(0, NoteItem(it))
         }
