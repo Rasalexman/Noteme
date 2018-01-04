@@ -15,5 +15,6 @@ data class NoteModel(@PrimaryKey(autoincrement = true) @Column(name = "id") var 
                      @Column var title: String? = null,
                      @Column var text:String? = null,
                      @Column var createDate: Date? = null,
-                     @Column var changeDate: Date? = null
+                     @Column var changeDate: Date? = null,
+                     @Column var searchString: String? = null
                      ):Serializable

@@ -17,7 +17,7 @@ buildscript {
     ext {
         supportLib = '27.0.2'
 
-        ankoVersion = '0.10.3'
+        ankoVersion = '0.10.4'
         dbflowVersion = "4.1.2"
 
         conductorVersion = '2.1.4'

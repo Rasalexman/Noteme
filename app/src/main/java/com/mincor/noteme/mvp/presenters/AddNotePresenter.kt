@@ -6,6 +6,7 @@ import com.github.salomonbrys.kodein.singleton
 import com.mincor.noteme.mvp.contracts.AddNoteContract
 import com.mincor.noteme.mvp.models.NoteModel
 import com.raizlabs.android.dbflow.kotlinextensions.insert
+import com.raizlabs.android.dbflow.kotlinextensions.save
 import com.raizlabs.android.dbflow.kotlinextensions.update
 import java.util.*
 
@@ -30,8 +31,8 @@ class AddNotePresenter : AddNoteContract.IPresenter {
 
     override fun saveNote(title: String?, text: String?) {
         val dt = Date()
-        val newNote = NoteModel(0, title, text, dt, dt)
-        newNote.insert()
+        val newNote = NoteModel(0, title, text, dt, dt, title?.toLowerCase()+""+text?.toLowerCase())
+        newNote.save()
     }
 }
 

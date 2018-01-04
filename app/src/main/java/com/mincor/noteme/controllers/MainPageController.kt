@@ -2,20 +2,18 @@ package com.mincor.noteme.controllers
 
 import android.content.Context
 import android.graphics.Color
-import android.support.v7.widget.RecyclerView
+import android.support.design.widget.FloatingActionButton
 import android.support.v7.widget.SearchView
 import android.view.Menu
 import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
+import android.widget.ImageView
 import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.changehandler.HorizontalChangeHandler
 import com.github.salomonbrys.kodein.instance
-import com.mikepenz.fastadapter.FastAdapter
-import com.mikepenz.fastadapter.IAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
-import com.mikepenz.fastadapter.listeners.ClickEventHook
-import com.mikepenz.fastadapter.listeners.EventHook
 import com.mincor.dancehalldancer.controllers.base.BaseHeadRecyclerController
 import com.mincor.noteme.R
 import com.mincor.noteme.mvp.contracts.MainPageContract
@@ -28,22 +26,31 @@ import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.design.floatingActionButton
 import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.sdk25.coroutines.onClick
-import utils.PHOperator
+
 
 /**
  * Created by alexander on 01.11.17.
  */
 class MainPageController : BaseHeadRecyclerController(),
         MainPageContract.View,
-        SearchView.OnQueryTextListener, SearchView.OnCloseListener {
+        SearchView.OnQueryTextListener {
 
     // строка поиска которой назначаем слушатель
     private var searchView: SearchView? = null
+    private var searchSourceText:EditText? = null
+    private var searchMenuItem:MenuItem? = null
+    private var closeButton:ImageView? = null
+
+    private var floatButton:FloatingActionButton? = null
     // Title
-    override val title: String get() = activity!!.getString(R.string.app_name)
+    override var title: String = ""
+        get() = if(field.isEmpty()) activity!!.getString(R.string.app_name) else field
 
     // IPresenter
     override val presenter: MainPageContract.Presenter by instance()
+
+    // search title
+    private var sTitle:String = ""
 
     // BASE UI
     override fun getControllerUI(context: Context): View = MainUI().createView(AnkoContext.Companion.create(context, this))
@@ -51,7 +58,7 @@ class MainPageController : BaseHeadRecyclerController(),
     override fun onAttach(view: View) {
         super.onAttach(view)
         presenter.view = this
-        presenter.getAllNotes()
+        presenter.start()
     }
 
     override fun onItemClickHandler(item: AbstractItem<*, *>, position: Int) {
@@ -62,8 +69,25 @@ class MainPageController : BaseHeadRecyclerController(),
     override fun onDetach(view: View) {
         presenter.stop()
         searchView?.setOnQueryTextListener(null)
+        searchView?.setOnSearchClickListener(null)
         searchView = null
+        searchMenuItem?.setOnActionExpandListener(null)
+        searchMenuItem = null
+        closeButton?.setOnClickListener(null)
+        closeButton = null
         super.onDetach(view)
+    }
+
+    override fun onDestroy() {
+        floatButton?.setOnClickListener(null)
+        floatButton = null
+        super.onDestroy()
+    }
+
+    override fun applySearchTitle(ttl:String){
+        this.title = ttl
+        sTitle = ttl
+        setTitle()
     }
 
     override fun showNotes(notes: List<NoteItem>) {
@@ -78,27 +102,56 @@ class MainPageController : BaseHeadRecyclerController(),
         // создаем новое меню
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.search_menu, menu)
-        val search = menu.findItem(R.id.app_bar_search)
-        this.searchView = search.actionView as SearchView
+        searchMenuItem = menu.findItem(R.id.app_bar_search)
+
+        this.searchView = searchMenuItem!!.actionView as SearchView
         searchView!!.setOnQueryTextListener(this)
 
-        val searchSourceText:EditText = searchView!!.find(android.support.v7.appcompat.R.id.search_src_text)
-        searchSourceText.setTextColor(Color.WHITE)
-        searchSourceText.setHintTextColor(Color.WHITE)
+        searchSourceText = searchView!!.find(android.support.v7.appcompat.R.id.search_src_text)
+        searchSourceText!!.setTextColor(Color.WHITE)
+        searchSourceText!!.setHintTextColor(Color.WHITE)
+
+        searchView!!.setOnSearchClickListener {
+            searchSourceText?.setText(sTitle)
+            searchSourceText?.setSelection(sTitle.length)
+        }
+
+        closeButton = this.searchView!!.find(R.id.search_close_btn) as ImageView
+        // Set on click listener
+        closeButton!!.setOnClickListener {
+            if(sTitle.isNotEmpty()) {
+                clearSearch()
+            }
+            searchSourceText?.setText("")
+            searchSourceText?.requestFocusFromTouch()
+        }
+    }
+
+    private fun clearSearch(){
+        applySearchTitle("")
+        this.mFastItemAdapter?.clear()
+        presenter.clearSearch()
     }
 
     override fun onQueryTextSubmit(s: String): Boolean {
-        search(s)
+        if(s.isNotBlank() && s.isNotEmpty()){
+            applySearchTitle(s)
+            this.searchView?.clearFocus()
+            this.mFastItemAdapter?.clear()
+            presenter.search(s)
+        }
         return true
     }
 
-    override fun onQueryTextChange(s: String): Boolean = true
-    override fun onClose(): Boolean = false
-    private fun search(s:String) {
-        if(s.isNotBlank() && s.isNotEmpty()){
-
-        }
+    private fun onAddNewNoteHandler(){
+        title = ""
+        sTitle = ""
+        presenter.clearSearchString()
+        router.pushController(RouterTransaction.with(AddNoteController())
+                .pushChangeHandler(HorizontalChangeHandler()).popChangeHandler(HorizontalChangeHandler()))
     }
+
+    override fun onQueryTextChange(s: String): Boolean = false
 
     inner class MainUI : AnkoComponent<MainPageController> {
         override fun createView(ui: AnkoContext<MainPageController>): View = with(ui){
@@ -120,12 +173,11 @@ class MainPageController : BaseHeadRecyclerController(),
                     behavior = android.support.design.widget.AppBarLayout.ScrollingViewBehavior()
                 }
 
-                floatingActionButton {
+                floatButton = floatingActionButton {
                     id = com.mincor.noteme.R.id.button_add_note_id
                     setImageResource(R.drawable.ic_add_white_24dp)
                     onClick {
-                        router.pushController(RouterTransaction.with(AddNoteController())
-                                .pushChangeHandler(HorizontalChangeHandler()).popChangeHandler(HorizontalChangeHandler()))
+                        onAddNewNoteHandler()
                     }
                 }.lparams {
                     anchorId = com.mincor.noteme.R.id.rv_controller

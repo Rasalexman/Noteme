@@ -83,7 +83,7 @@ abstract class BaseHeadRecyclerController : BaseActionBarController(), OnClickLi
     }
 
     // Показываем загрузку
-    protected fun showLoadingFooter() {
+    fun showLoadingFooter() {
         hideLoadingFooter()
         mFooterAdapter?.add(ProgressItem().withEnabled(false))
     }

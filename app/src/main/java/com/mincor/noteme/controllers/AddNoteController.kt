@@ -59,8 +59,12 @@ class AddNoteController(note: NoteModel? = null) : BaseActionBarController(bundl
 
     private fun showNote(note: NoteModel) {
         noteToSave = note
-        titleText?.setText(note.title)
-        bodyText?.setText(note.text)
+        // saved title and text for note
+        val savedTitle = note.title
+        val savedText = note.text
+        titleText?.setText(savedTitle)
+        titleText?.setSelection(savedTitle?.length?:0)
+        bodyText?.setText(savedText)
     }
 
     private fun onSaveClickHandler() {

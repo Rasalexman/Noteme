@@ -10,9 +10,13 @@ import com.mincor.noteme.view.NoteItem
 interface MainPageContract {
 
     interface Presenter:IBasePresenter<View>{
-        fun getAllNotes()
+        fun search(s:String)
+        fun clearSearch()
+        fun clearSearchString()
     }
     interface View:IBaseView<Presenter>{
         fun showNotes(notes:List<NoteItem>)
+        fun showLoadingFooter()
+        fun applySearchTitle(ttl:String)
     }
 }
