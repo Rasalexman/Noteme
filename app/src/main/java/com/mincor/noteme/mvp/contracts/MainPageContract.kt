@@ -2,6 +2,7 @@ package com.mincor.noteme.mvp.contracts
 
 import com.mincor.noteme.mvp.base.IBasePresenter
 import com.mincor.noteme.mvp.base.IBaseView
+import com.mincor.noteme.mvp.models.NoteModel
 import com.mincor.noteme.view.NoteItem
 
 /**
@@ -13,6 +14,7 @@ interface MainPageContract {
         fun search(s:String)
         fun clearSearch()
         fun clearSearchString()
+        fun deleteItem(noteModel:NoteItem)
     }
     interface View:IBaseView<Presenter>{
         fun showNotes(notes:List<NoteItem>)

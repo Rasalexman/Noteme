@@ -6,4 +6,10 @@
         android:icon="@drawable/ic_search_white_24dp"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="collapseActionView|ifRoom" />
+
+    <item android:id="@+id/app_bar_delete"
+        android:title="@string/delete_title"
+        android:visible="false"
+        android:icon="@drawable/ic_delete_white_24dp"
+        app:showAsAction="collapseActionView|ifRoom" />
 </menu>

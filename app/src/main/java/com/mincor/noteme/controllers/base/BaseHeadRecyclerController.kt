@@ -13,15 +13,20 @@ import com.mikepenz.fastadapter.listeners.OnClickListener
 import com.mikepenz.fastadapter_extensions.items.ProgressItem
 import com.mikepenz.fastadapter_extensions.scroll.EndlessRecyclerOnScrollListener
 import ru.fortgroup.dpru.controllers.base.BaseActionBarController
+import com.mikepenz.fastadapter_extensions.utilities.SubItemUtil.getSelectedItems
+import com.mikepenz.fastadapter.ISelectionListener
+
+
 
 /**
  * Created by Alex on 07.01.2017.
  */
 
-abstract class BaseHeadRecyclerController : BaseActionBarController(), OnClickListener<AbstractItem<*, *>> {
+abstract class BaseHeadRecyclerController : BaseActionBarController(),
+        OnClickListener<AbstractItem<*, *>>,ISelectionListener<AbstractItem<*, *>> {
 
     init {
-        retainViewMode = RetainViewMode.RETAIN_DETACH
+        retainViewMode = RetainViewMode.RELEASE_DETACH
     }
 
     open var rvc: RecyclerView? = null
@@ -31,7 +36,7 @@ abstract class BaseHeadRecyclerController : BaseActionBarController(), OnClickLi
     // save our FastAdapter
     protected var mFastItemAdapter: FastItemAdapter<AbstractItem<*, *>>? = null
     // endless update adapter Item
-    protected var mFooterAdapter: ItemAdapter<AbstractItem<*,*>>? = null
+    protected var mFooterAdapter: ItemAdapter<AbstractItem<*, *>>? = null
     // saved scroll position
     private var savedScrollPosition = 0
     // Store a member variable for the listener
@@ -39,19 +44,35 @@ abstract class BaseHeadRecyclerController : BaseActionBarController(), OnClickLi
 
     override fun onAttach(view: View) {
         super.onAttach(view)
-        createAdapters()                   // создаем адаптеры
         setRVLayoutManager()               // назначаем лайаут
-        setRVCAdapter()                    // назначаем адаптер
+        createAdapters()                   // создаем адаптеры
         //addOnScrollListener()              // добавляем скролл
-        checkData()                        // загружаем данные
-        applyScrollPosition()              // назначаем сохраненную скролл позицию
+    }
+
+    protected fun setRVLayoutManager() {
+        layoutManager ?: let {
+            layoutManager = LinearLayoutManager(this.activity, LinearLayout.VERTICAL, false)
+            (layoutManager as LinearLayoutManager).isSmoothScrollbarEnabled = false
+            rvc?.layoutManager = layoutManager
+        }
     }
 
     protected fun createAdapters() {
-        mFastItemAdapter = mFastItemAdapter?:FastItemAdapter()
-        mFastItemAdapter!!.withOnClickListener(this)
-        mFooterAdapter = mFooterAdapter?: ItemAdapter.items()
-        mFastItemAdapter!!.addAdapter(1, mFooterAdapter)
+        mFastItemAdapter ?: let {
+            mFastItemAdapter = FastItemAdapter()
+            mFastItemAdapter!!.withOnClickListener(this)
+            mFastItemAdapter!!.withSelectable(true)
+            mFastItemAdapter!!.withMultiSelect(true)
+            mFastItemAdapter!!.withSelectOnLongClick(true)
+            mFastItemAdapter!!.withSelectionListener(this)
+            mFooterAdapter = ItemAdapter.items()
+            mFastItemAdapter!!.addAdapter(1, mFooterAdapter)
+            setRVCAdapter()                    // назначаем адаптер
+        }
+    }
+
+    override fun onSelectionChanged(item: AbstractItem<*, *>?, selected: Boolean) {
+
     }
 
     protected fun setRVCAdapter() {
@@ -60,12 +81,10 @@ abstract class BaseHeadRecyclerController : BaseActionBarController(), OnClickLi
     }
 
     protected fun addOnScrollListener() {
-        scrollListener = scrollListener?:object : EndlessRecyclerOnScrollListener(){
+        scrollListener = scrollListener ?: object : EndlessRecyclerOnScrollListener() {
             override fun onLoadMore(currentPage: Int) {
                 showLoadingFooter()
-                Handler().postDelayed({
-                    onLoadMoreBottomHandler(currentPage)
-                }, 2000)
+                onLoadMoreBottomHandler(currentPage)
             }
         }
         rvc?.addOnScrollListener(scrollListener)
@@ -99,23 +118,13 @@ abstract class BaseHeadRecyclerController : BaseActionBarController(), OnClickLi
         }
     }
 
-    override fun onClick(v: View, adapter: IAdapter<AbstractItem<*, *>>, item: AbstractItem<*, *>, position: Int): Boolean {
+    override fun onClick(v: View?, adapter: IAdapter<AbstractItem<*, *>>?, item: AbstractItem<*, *>, position: Int): Boolean {
         onItemClickHandler(item, position)
         return false
     }
 
-    protected open fun onItemClickHandler(item: AbstractItem<*, *>, position: Int){
+    protected open fun onItemClickHandler(item: AbstractItem<*, *>, position: Int) {
 
-    }
-
-    protected fun setRVLayoutManager() {
-        layoutManager = layoutManager?:LinearLayoutManager(this.activity, LinearLayout.VERTICAL, false)
-        (layoutManager as LinearLayoutManager).isSmoothScrollbarEnabled = false
-        rvc?.layoutManager = layoutManager
-    }
-
-    protected fun checkData() {
-        showLoadingFooter()
     }
 
     protected fun setScrollPosition() {
@@ -127,6 +136,10 @@ abstract class BaseHeadRecyclerController : BaseActionBarController(), OnClickLi
 
     override fun onDetach(view: View) {
         setScrollPosition()
+        super.onDetach(view)
+    }
+
+    override fun onDestroyView(view: View) {
         clearEndlessScrollListener()
         rvc?.recycledViewPool?.clear()
         mFastItemAdapter!!.notifyDataSetChanged()
@@ -146,9 +159,7 @@ abstract class BaseHeadRecyclerController : BaseActionBarController(), OnClickLi
             mFastItemAdapter!!.withOnClickListener(null)
             mFastItemAdapter = null
         }
-
-        //rvc = null
-        super.onDetach(view)
+        super.onDestroyView(view)
     }
 
     private fun clearEndlessScrollListener() {

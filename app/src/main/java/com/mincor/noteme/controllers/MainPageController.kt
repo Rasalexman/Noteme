@@ -18,6 +18,7 @@ import com.mincor.dancehalldancer.controllers.base.BaseHeadRecyclerController
 import com.mincor.noteme.R
 import com.mincor.noteme.mvp.contracts.MainPageContract
 import com.mincor.noteme.utils.color
+import com.mincor.noteme.utils.visible
 import com.mincor.noteme.view.NoteItem
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
@@ -37,20 +38,23 @@ class MainPageController : BaseHeadRecyclerController(),
 
     // строка поиска которой назначаем слушатель
     private var searchView: SearchView? = null
-    private var searchSourceText:EditText? = null
-    private var searchMenuItem:MenuItem? = null
-    private var closeButton:ImageView? = null
+    private var searchSourceText: EditText? = null
+    private var searchMenuItem: MenuItem? = null
+    private var deleteMenuItem: MenuItem? = null
+    private var closeButton: ImageView? = null
 
-    private var floatButton:FloatingActionButton? = null
+    private var floatButton: FloatingActionButton? = null
+
+    private val selectedItems = mutableListOf<NoteItem>()
     // Title
     override var title: String = ""
-        get() = if(field.isEmpty()) activity!!.getString(R.string.app_name) else field
+        get() = if (field.isEmpty()) activity!!.getString(R.string.app_name) else field
 
     // IPresenter
     override val presenter: MainPageContract.Presenter by instance()
 
     // search title
-    private var sTitle:String = ""
+    private var sTitle: String = ""
 
     // BASE UI
     override fun getControllerUI(context: Context): View = MainUI().createView(AnkoContext.Companion.create(context, this))
@@ -66,8 +70,26 @@ class MainPageController : BaseHeadRecyclerController(),
                 .pushChangeHandler(HorizontalChangeHandler()).popChangeHandler(HorizontalChangeHandler()))
     }
 
+    override fun onSelectionChanged(item: AbstractItem<*, *>?, selected: Boolean) {
+        val noteItem = item as NoteItem
+        noteItem.itemSelected = selected
+        mFastItemAdapter?.notifyAdapterItemChanged(mFastItemAdapter?.getPosition(noteItem) ?: 0)
+
+        if(selected) {
+            selectedItems.add(noteItem)
+        } else {
+            if(selectedItems.indexOf(noteItem) >= 0){
+                selectedItems.remove(noteItem)
+            }
+        }
+
+        deleteMenuItem?.isVisible = (selectedItems.size > 0)
+    }
+
     override fun onDetach(view: View) {
         presenter.stop()
+        deleteMenuItem?.setOnMenuItemClickListener(null)
+        deleteMenuItem = null
         searchView?.setOnQueryTextListener(null)
         searchView?.setOnSearchClickListener(null)
         searchView = null
@@ -84,7 +106,7 @@ class MainPageController : BaseHeadRecyclerController(),
         super.onDestroy()
     }
 
-    override fun applySearchTitle(ttl:String){
+    override fun applySearchTitle(ttl: String) {
         this.title = ttl
         sTitle = ttl
         setTitle()
@@ -93,7 +115,7 @@ class MainPageController : BaseHeadRecyclerController(),
     override fun showNotes(notes: List<NoteItem>) {
         print("all notes comes $notes")
         hideLoadingFooter()
-        mFastItemAdapter?.add(notes)
+        mFastItemAdapter?.set(notes)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -103,6 +125,16 @@ class MainPageController : BaseHeadRecyclerController(),
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.search_menu, menu)
         searchMenuItem = menu.findItem(R.id.app_bar_search)
+        deleteMenuItem = menu.findItem(R.id.app_bar_delete)
+        deleteMenuItem!!.setOnMenuItemClickListener {
+            selectedItems.forEach {
+                mFastItemAdapter?.remove(mFastItemAdapter?.getPosition(it)?:0)
+                presenter.deleteItem(it)
+            }
+            selectedItems.clear()
+            deleteMenuItem?.isVisible = false
+            true
+        }
 
         this.searchView = searchMenuItem!!.actionView as SearchView
         searchView!!.setOnQueryTextListener(this)
@@ -119,7 +151,7 @@ class MainPageController : BaseHeadRecyclerController(),
         closeButton = this.searchView!!.find(R.id.search_close_btn) as ImageView
         // Set on click listener
         closeButton!!.setOnClickListener {
-            if(sTitle.isNotEmpty()) {
+            if (sTitle.isNotEmpty()) {
                 clearSearch()
             }
             searchSourceText?.setText("")
@@ -127,14 +159,14 @@ class MainPageController : BaseHeadRecyclerController(),
         }
     }
 
-    private fun clearSearch(){
+    private fun clearSearch() {
         applySearchTitle("")
         this.mFastItemAdapter?.clear()
         presenter.clearSearch()
     }
 
     override fun onQueryTextSubmit(s: String): Boolean {
-        if(s.isNotBlank() && s.isNotEmpty()){
+        if (s.isNotBlank() && s.isNotEmpty()) {
             applySearchTitle(s)
             this.searchView?.clearFocus()
             this.mFastItemAdapter?.clear()
@@ -143,7 +175,7 @@ class MainPageController : BaseHeadRecyclerController(),
         return true
     }
 
-    private fun onAddNewNoteHandler(){
+    private fun onAddNewNoteHandler() {
         title = ""
         sTitle = ""
         presenter.clearSearchString()
@@ -154,7 +186,7 @@ class MainPageController : BaseHeadRecyclerController(),
     override fun onQueryTextChange(s: String): Boolean = false
 
     inner class MainUI : AnkoComponent<MainPageController> {
-        override fun createView(ui: AnkoContext<MainPageController>): View = with(ui){
+        override fun createView(ui: AnkoContext<MainPageController>): View = with(ui) {
             coordinatorLayout {
                 lparams(org.jetbrains.anko.matchParent, org.jetbrains.anko.matchParent)
 
@@ -162,7 +194,7 @@ class MainPageController : BaseHeadRecyclerController(),
                     toolbar = toolbar {
                         id = com.mincor.noteme.R.id.main_appbar
                         setTitleTextColor(color(com.mincor.noteme.R.color.colorWhite))
-                    }.lparams(org.jetbrains.anko.matchParent, dip(56)){
+                    }.lparams(org.jetbrains.anko.matchParent, dip(56)) {
                         scrollFlags = android.support.design.widget.AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS
                     }
                 }.lparams(org.jetbrains.anko.matchParent)

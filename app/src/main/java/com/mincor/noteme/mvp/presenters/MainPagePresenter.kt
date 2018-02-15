@@ -75,6 +75,18 @@ class MainPagePresenter : MainPageContract.Presenter {
         }
     }
 
+    override fun deleteItem(noteModel: NoteItem) {
+        async(CommonPool) {
+            noteModel.note.delete()
+        }
+
+        if(mAllNotes.indexOf(noteModel) >= 0){
+            mAllNotes.remove(noteModel)
+        } else if(mSearchedNotes.indexOf(noteModel) >= 0){
+            mSearchedNotes.remove(noteModel)
+        }
+    }
+
     override fun clearSearch() {
         clearSearchString()
         start()

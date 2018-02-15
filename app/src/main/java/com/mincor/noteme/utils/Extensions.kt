@@ -133,16 +133,11 @@ fun View.show() {
     visibility = VISIBLE
 }
 
-/**
- * User: mcxiaoke
- * Date: 16/1/30
- * Time: 00:22
- */
 object DateHelper {
     const val DF_SIMPLE_STRING = "HH:mm dd.MM.yyyy"
     @JvmField val DF_SIMPLE_FORMAT = object : ThreadLocal<DateFormat>() {
         override fun initialValue(): DateFormat {
-            return SimpleDateFormat(DF_SIMPLE_STRING, Locale.US)
+            return SimpleDateFormat(DF_SIMPLE_STRING, Locale.getDefault())
         }
     }
 }

@@ -9,8 +9,8 @@ android {
         applicationId "com.mincor.noteme"
         minSdkVersion 17
         targetSdkVersion 27
-        versionCode 10001
-        versionName "1.0.1"
+        versionCode 10002
+        versionName "1.0.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
