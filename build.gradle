@@ -12,13 +12,15 @@ buildscript {
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
+        classpath 'com.google.gms:google-services:3.1.1'
     }
 
     ext {
         supportLib = '27.0.2'
 
         ankoVersion = '0.10.4'
-        dbflowVersion = "4.1.2"
+        dbflowVersion = "4.2.4"
+        dbflowProcessorVersion = "4.1.2"
 
         conductorVersion = '2.1.4'
 

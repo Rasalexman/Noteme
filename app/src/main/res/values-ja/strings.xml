@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NoteMe</string>
+    <string name="all_note_title">すべてのノート</string>
+    <string name="add_note_title">新しいメモ</string>
+    <string name="edit_note_title">注意：</string>
+    <string name="note_title">ヘッダー</string>
+    <string name="note_body">テキスト</string>
+    <string name="search_title">検索</string>
+    <string name="delete_title">削除する</string>
+    <string name="save_article">保存する</string>
+</resources>

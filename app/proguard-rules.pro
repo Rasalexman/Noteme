@@ -19,3 +19,18 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+-ignorewarnings
+-keep class * {
+    public private *;
+}
+
+# Kotlin coroutines
+-keepclassmembernames class kotlinx.** {
+    volatile <fields>;
+}
+
+
+# Kodein
+-keepattributes Signature
+
+-keep class * extends com.raizlabs.android.dbflow.config.DatabaseHolder { *; }

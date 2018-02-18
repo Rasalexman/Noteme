@@ -13,9 +13,11 @@ import android.widget.ImageView
 import com.bluelinelabs.conductor.RouterTransaction
 import com.bluelinelabs.conductor.changehandler.HorizontalChangeHandler
 import com.github.salomonbrys.kodein.instance
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.mikepenz.fastadapter.items.AbstractItem
 import com.mincor.dancehalldancer.controllers.base.BaseHeadRecyclerController
 import com.mincor.noteme.R
+import com.mincor.noteme.activity.MainActivity
 import com.mincor.noteme.mvp.contracts.MainPageContract
 import com.mincor.noteme.utils.color
 import com.mincor.noteme.utils.visible
@@ -27,6 +29,9 @@ import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.design.floatingActionButton
 import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.sdk25.coroutines.onClick
+import android.os.Bundle
+
+
 
 
 /**
@@ -48,7 +53,7 @@ class MainPageController : BaseHeadRecyclerController(),
     private val selectedItems = mutableListOf<NoteItem>()
     // Title
     override var title: String = ""
-        get() = if (field.isEmpty()) activity!!.getString(R.string.app_name) else field
+        get() = if (field.isEmpty()) activity!!.getString(R.string.all_note_title) else field
 
     // IPresenter
     override val presenter: MainPageContract.Presenter by instance()
@@ -82,7 +87,10 @@ class MainPageController : BaseHeadRecyclerController(),
                 selectedItems.remove(noteItem)
             }
         }
+        checkDeleteMenuVisible()
+    }
 
+    private fun checkDeleteMenuVisible() {
         deleteMenuItem?.isVisible = (selectedItems.size > 0)
     }
 
@@ -136,6 +144,8 @@ class MainPageController : BaseHeadRecyclerController(),
             true
         }
 
+        checkDeleteMenuVisible()
+
         this.searchView = searchMenuItem!!.actionView as SearchView
         searchView!!.setOnQueryTextListener(this)
 
@@ -171,6 +181,13 @@ class MainPageController : BaseHeadRecyclerController(),
             this.searchView?.clearFocus()
             this.mFastItemAdapter?.clear()
             presenter.search(s)
+
+            ///---- LOG ANALYTICS
+            val bundle = Bundle()
+            bundle.putString(FirebaseAnalytics.Param.SEARCH_TERM, s)
+            bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "text")
+            val analytics = (this.activity as MainActivity).mFirebaseAnalytics
+            analytics.logEvent(FirebaseAnalytics.Event.SEARCH, bundle)
         }
         return true
     }

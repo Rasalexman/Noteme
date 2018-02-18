@@ -1,0 +1,86 @@
+{
+  "project_info": {
+    "project_number": "457624494650",
+    "firebase_url": "https://noteme-2e956.firebaseio.com",
+    "project_id": "noteme-2e956",
+    "storage_bucket": "noteme-2e956.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:457624494650:android:366ba49a5c504462",
+        "android_client_info": {
+          "package_name": "com.mincor.noteme"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "457624494650-cetbgm7ua14ls6i36e53qfadk3rrhnmc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuKa7XwDx_PdGyk0ZnLYII9tqVsat2TLE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:457624494650:android:1e451bec6d2ea1e8",
+        "android_client_info": {
+          "package_name": "com.mincor.noteme.debug"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "457624494650-u28c14qc9mc6qgk3v8nu12e0ltpo9t36.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mincor.noteme.debug",
+            "certificate_hash": "9b8c139207aa036bb007b3b7b04fbce43a058027"
+          }
+        },
+        {
+          "client_id": "457624494650-cetbgm7ua14ls6i36e53qfadk3rrhnmc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuKa7XwDx_PdGyk0ZnLYII9tqVsat2TLE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "457624494650-cetbgm7ua14ls6i36e53qfadk3rrhnmc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

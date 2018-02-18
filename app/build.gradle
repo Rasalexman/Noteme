@@ -9,8 +9,8 @@ android {
         applicationId "com.mincor.noteme"
         minSdkVersion 17
         targetSdkVersion 27
-        versionCode 10002
-        versionName "1.0.2"
+        versionCode 10008
+        versionName "1.0.8"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -40,7 +40,7 @@ android {
     }
 
     kotlin { experimental { coroutines 'enable' } }
-    kapt {        generateStubs = true    }
+    kapt { generateStubs = true }
 }
 
 dependencies {
@@ -81,9 +81,13 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     //implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlinCoroutinesVersion"
 
-    kapt "com.github.Raizlabs.DBFlow:dbflow-processor:$dbflowVersion"
+    //------ FIREBASE ANALYTICS
+    implementation 'com.google.firebase:firebase-core:11.8.0'
+    kapt "com.github.Raizlabs.DBFlow:dbflow-processor:$dbflowProcessorVersion"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
+
+apply plugin: 'com.google.gms.google-services'

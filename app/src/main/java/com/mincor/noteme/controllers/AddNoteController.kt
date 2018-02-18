@@ -1,12 +1,18 @@
 package com.mincor.noteme.controllers
 
 import android.content.Context
+import android.os.Bundle
 import android.view.View
 import android.widget.EditText
+import com.bluelinelabs.conductor.ControllerChangeHandler
+import com.bluelinelabs.conductor.ControllerChangeType
 import com.github.salomonbrys.kodein.instance
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.mincor.noteme.R
+import com.mincor.noteme.activity.MainActivity
 import com.mincor.noteme.mvp.contracts.AddNoteContract
 import com.mincor.noteme.mvp.models.NoteModel
+import com.mincor.noteme.utils.Keyboards
 import com.mincor.noteme.utils.color
 import com.mincor.noteme.utils.string
 import org.jetbrains.anko.*
@@ -43,10 +49,30 @@ class AddNoteController(note: NoteModel? = null) : BaseActionBarController(bundl
         setHomeButtonEnable()
         presenter.view = this
 
+        val bundle = Bundle()
         noteToSave = args.getSerializable(NOTE_ID)?.let { it as NoteModel }
         noteToSave?.let {
             showNote(it)
+            bundle.putString(FirebaseAnalytics.Param.CONTENT, it.title)
         }
+
+        bundle.putString(FirebaseAnalytics.Param.CONTENT_TYPE, "text")
+        val analytics = (this.activity as MainActivity).mFirebaseAnalytics
+        analytics.logEvent(FirebaseAnalytics.Event.SELECT_CONTENT, bundle)
+    }
+
+    override fun onChangeEnded(changeHandler: ControllerChangeHandler, changeType: ControllerChangeType) {
+        super.onChangeEnded(changeHandler, changeType)
+        if(changeType == ControllerChangeType.PUSH_ENTER){
+            noteToSave?:titleText?.let {
+                Keyboards.showKeyboard(it)
+            }
+        }
+    }
+
+    override fun handleBack(): Boolean {
+        this.goBack()
+        return true
     }
 
     override fun onDetach(view: View) {
@@ -76,8 +102,20 @@ class AddNoteController(note: NoteModel? = null) : BaseActionBarController(bundl
                 it.text = body.toString()
                 presenter.updateNote(it)
             } ?: presenter.saveNote(title.toString(), body.toString())
+
+            hideAllKeyBoard()
             router.popCurrentController()
         }
+    }
+
+    private fun hideAllKeyBoard(){
+        Keyboards.hideKeyboard(this.activity!!, titleText!!)
+        Keyboards.hideKeyboard(this.activity!!, bodyText!!)
+    }
+
+    override fun goBack() {
+        hideAllKeyBoard()
+        super.goBack()
     }
 
     override fun noteSaved() {}

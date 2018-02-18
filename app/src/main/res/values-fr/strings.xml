@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NoteMe</string>
+    <string name="all_note_title">Toutes les notes</string>
+    <string name="add_note_title">Nouvelle note</string>
+    <string name="edit_note_title">Note:</string>
+    <string name="note_title">En-tête</string>
+    <string name="note_body">Texte</string>
+    <string name="search_title">Chercher</string>
+    <string name="delete_title">Supprimer</string>
+    <string name="save_article">Sauvegarder</string>
+</resources>

@@ -78,7 +78,7 @@ abstract class BaseActionBarController : BaseController {
         super.onDestroyView(view)
     }
 
-    protected fun goBack() {
+    protected open fun goBack() {
         router.popController(this)
     }
 }

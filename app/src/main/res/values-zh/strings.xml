@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">NoteMe</string>
+    <string name="all_note_title">所有筆記</string>
+    <string name="add_note_title">新筆記</string>
+    <string name="edit_note_title">注</string>
+    <string name="note_title">頭</string>
+    <string name="note_body">文本</string>
+    <string name="search_title">搜索</string>
+    <string name="delete_title">刪除</string>
+    <string name="save_article">保留</string>
+</resources>
