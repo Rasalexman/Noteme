@@ -1,13 +1,12 @@
 package com.mincor.noteme.mvp.presenters
 
+import com.dbflow5.structure.save
+import com.dbflow5.structure.update
 import com.github.salomonbrys.kodein.Kodein
 import com.github.salomonbrys.kodein.bind
 import com.github.salomonbrys.kodein.singleton
 import com.mincor.noteme.mvp.contracts.AddNoteContract
 import com.mincor.noteme.mvp.models.NoteModel
-import com.raizlabs.android.dbflow.kotlinextensions.insert
-import com.raizlabs.android.dbflow.kotlinextensions.save
-import com.raizlabs.android.dbflow.kotlinextensions.update
 import java.util.*
 
 /**

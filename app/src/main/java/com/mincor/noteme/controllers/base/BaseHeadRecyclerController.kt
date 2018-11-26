@@ -1,21 +1,17 @@
-package com.mincor.dancehalldancer.controllers.base
+package com.mincor.noteme.controllers.base
 
-import android.os.Handler
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.LinearLayout
 import com.mikepenz.fastadapter.IAdapter
+import com.mikepenz.fastadapter.ISelectionListener
 import com.mikepenz.fastadapter.adapters.ItemAdapter
 import com.mikepenz.fastadapter.commons.adapters.FastItemAdapter
 import com.mikepenz.fastadapter.items.AbstractItem
 import com.mikepenz.fastadapter.listeners.OnClickListener
 import com.mikepenz.fastadapter_extensions.items.ProgressItem
-import com.mikepenz.fastadapter_extensions.scroll.EndlessRecyclerOnScrollListener
 import ru.fortgroup.dpru.controllers.base.BaseActionBarController
-import com.mikepenz.fastadapter_extensions.utilities.SubItemUtil.getSelectedItems
-import com.mikepenz.fastadapter.ISelectionListener
-
 
 
 /**
@@ -49,7 +45,7 @@ abstract class BaseHeadRecyclerController : BaseActionBarController(),
         //addOnScrollListener()              // добавляем скролл
     }
 
-    protected fun setRVLayoutManager() {
+    open protected fun setRVLayoutManager() {
         layoutManager ?: let {
             layoutManager = LinearLayoutManager(this.activity, LinearLayout.VERTICAL, false)
             (layoutManager as LinearLayoutManager).isSmoothScrollbarEnabled = false
@@ -60,13 +56,15 @@ abstract class BaseHeadRecyclerController : BaseActionBarController(),
     protected fun createAdapters() {
         mFastItemAdapter ?: let {
             mFastItemAdapter = FastItemAdapter()
-            mFastItemAdapter!!.withOnClickListener(this)
-            mFastItemAdapter!!.withSelectable(true)
-            mFastItemAdapter!!.withMultiSelect(true)
-            mFastItemAdapter!!.withSelectOnLongClick(true)
-            mFastItemAdapter!!.withSelectionListener(this)
-            mFooterAdapter = ItemAdapter.items()
-            mFastItemAdapter!!.addAdapter(1, mFooterAdapter)
+            mFastItemAdapter?.apply {
+                withOnClickListener(this@BaseHeadRecyclerController)
+                withSelectable(true)
+                withMultiSelect(true)
+                withSelectOnLongClick(true)
+                withSelectionListener(this@BaseHeadRecyclerController)
+                mFooterAdapter = ItemAdapter.items()
+                addAdapter(1, mFooterAdapter!!)
+            }
             setRVCAdapter()                    // назначаем адаптер
         }
     }
@@ -80,14 +78,14 @@ abstract class BaseHeadRecyclerController : BaseActionBarController(),
         rvc?.swapAdapter(mFastItemAdapter, true)
     }
 
-    protected fun addOnScrollListener() {
+   /* protected fun addOnScrollListener() {
         scrollListener = scrollListener ?: object : EndlessRecyclerOnScrollListener() {
             override fun onLoadMore(currentPage: Int) {
                 showLoadingFooter()
                 onLoadMoreBottomHandler(currentPage)
             }
         }
-        rvc?.addOnScrollListener(scrollListener)
+        rvc?.addOnScrollListener(scrollListener!!)
     }
 
     protected fun scrollToFirstIfNeeded() {
@@ -99,7 +97,7 @@ abstract class BaseHeadRecyclerController : BaseActionBarController(),
 
     protected fun onLoadMoreBottomHandler(currentPage: Int) {
 
-    }
+    }*/
 
     // Показываем загрузку
     fun showLoadingFooter() {
@@ -112,11 +110,11 @@ abstract class BaseHeadRecyclerController : BaseActionBarController(),
         mFooterAdapter?.clear()
     }
 
-    protected fun applyScrollPosition() {
+    /*protected fun applyScrollPosition() {
         if (layoutManager != null && savedScrollPosition > -1) {
             layoutManager!!.scrollToPosition(savedScrollPosition)
         }
-    }
+    }*/
 
     override fun onClick(v: View?, adapter: IAdapter<AbstractItem<*, *>>?, item: AbstractItem<*, *>, position: Int): Boolean {
         onItemClickHandler(item, position)

@@ -1,5 +1,9 @@
 package com.mincor.noteme.mvp.presenters
 
+import com.dbflow5.query.list
+import com.dbflow5.query.or
+import com.dbflow5.query.select
+import com.dbflow5.structure.delete
 import com.github.salomonbrys.kodein.Kodein
 import com.github.salomonbrys.kodein.bind
 import com.github.salomonbrys.kodein.singleton
@@ -8,16 +12,19 @@ import com.mincor.noteme.mvp.models.NoteModel
 import com.mincor.noteme.mvp.models.NoteModel_Table
 import com.mincor.noteme.mvp.models.NoteModel_Table.*
 import com.mincor.noteme.view.NoteItem
-import com.raizlabs.android.dbflow.kotlinextensions.*
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Created by alexander on 01.11.17.
  */
-class MainPagePresenter : MainPageContract.Presenter {
+class MainPagePresenter : MainPageContract.Presenter, CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main
 
     override var view: MainPageContract.View? = null
     private val mAllNotes: MutableList<NoteItem> = mutableListOf()
@@ -26,7 +33,7 @@ class MainPagePresenter : MainPageContract.Presenter {
     private var lastSearch: String = ""
 
     override fun start() {
-        launch(UI) {
+        launch {
             view?.showLoadingFooter()
 
             if (lastSearch.isNotEmpty()) {
@@ -35,7 +42,7 @@ class MainPagePresenter : MainPageContract.Presenter {
                 return@launch
             }
 
-            val result = async(CommonPool) {
+            val result = async {
                 if (mAllNotes.size > 0) {
                     val first = mAllNotes.first()
                     (select from NoteModel::class where (createDate greaterThan first.note.createDate!!)).list
@@ -44,7 +51,7 @@ class MainPagePresenter : MainPageContract.Presenter {
                 }
             }.await()
 
-            async(CommonPool) {
+            async {
                 createNoteItems(result, mAllNotes)
             }.await()
 
@@ -57,17 +64,17 @@ class MainPagePresenter : MainPageContract.Presenter {
     }
 
     override fun search(s: String) {
-        launch(UI) {
+        launch {
             lastSearch = s
             mSearchedNotes.clear()
             view?.showLoadingFooter()
 
-            val result = async(CommonPool) {
+            val result = async {
                 val pattern = "%$s%"
                 (select from NoteModel::class where (title.like(pattern) or text.like(pattern))).orderBy(NoteModel_Table.createDate, true).list
             }.await()
 
-            async(CommonPool) {
+            async {
                 createNoteItems(result, mSearchedNotes)
             }.await()
 
@@ -76,7 +83,7 @@ class MainPagePresenter : MainPageContract.Presenter {
     }
 
     override fun deleteItem(noteModel: NoteItem) {
-        async(CommonPool) {
+        async {
             noteModel.note.delete()
         }
 
@@ -97,7 +104,7 @@ class MainPagePresenter : MainPageContract.Presenter {
         mSearchedNotes.clear()
     }
 
-    private suspend fun createNoteItems(notes: List<NoteModel>, mapper: MutableList<NoteItem>) {
+    private fun createNoteItems(notes: List<NoteModel>, mapper: MutableList<NoteItem>) {
         notes.forEach {
             mapper.add(0, NoteItem(it))
         }

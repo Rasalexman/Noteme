@@ -19,13 +19,13 @@ class ScrollAwareFABBehavior : FloatingActionButton.Behavior() {
 
     private var isFabShowing:Boolean = true
 
-    override fun layoutDependsOn(parent: CoordinatorLayout?, child: FloatingActionButton?, dependency: View?): Boolean {
+    override fun layoutDependsOn(parent: CoordinatorLayout, child: FloatingActionButton, dependency: View): Boolean {
         return dependency is RecyclerView
     }
 
     override fun onNestedScroll(coordinatorLayout: CoordinatorLayout, child: FloatingActionButton, target: View, dxConsumed: Int, dyConsumed: Int, dxUnconsumed: Int, dyUnconsumed: Int, type: Int) {
         super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type)
-        Log.d("SCROLL DEBUG", "dyConsumed = "+dyConsumed)
+        Log.d("SCROLL DEBUG", "dyConsumed = $dyConsumed")
         if(isFabShowing && dyConsumed > 2){
             isFabShowing = false
             val translation = child.y - child.height - 10

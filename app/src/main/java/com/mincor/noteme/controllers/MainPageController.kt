@@ -2,6 +2,7 @@ package com.mincor.noteme.controllers
 
 import android.content.Context
 import android.graphics.Color
+import android.os.Bundle
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.widget.SearchView
 import android.view.Menu
@@ -15,12 +16,11 @@ import com.bluelinelabs.conductor.changehandler.HorizontalChangeHandler
 import com.github.salomonbrys.kodein.instance
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.mikepenz.fastadapter.items.AbstractItem
-import com.mincor.dancehalldancer.controllers.base.BaseHeadRecyclerController
 import com.mincor.noteme.R
 import com.mincor.noteme.activity.MainActivity
+import com.mincor.noteme.controllers.base.BaseHeadRecyclerController
 import com.mincor.noteme.mvp.contracts.MainPageContract
 import com.mincor.noteme.utils.color
-import com.mincor.noteme.utils.visible
 import com.mincor.noteme.view.NoteItem
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
@@ -29,9 +29,6 @@ import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.design.floatingActionButton
 import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.sdk25.coroutines.onClick
-import android.os.Bundle
-
-
 
 
 /**
@@ -94,6 +91,14 @@ class MainPageController : BaseHeadRecyclerController(),
         deleteMenuItem?.isVisible = (selectedItems.size > 0)
     }
 
+    /*override fun setRVLayoutManager() {
+        layoutManager ?: let {
+            layoutManager = GridLayoutManager(this.activity, 2)
+            (layoutManager as GridLayoutManager).isSmoothScrollbarEnabled = false
+            rvc?.layoutManager = layoutManager
+        }
+    }*/
+
     override fun onDetach(view: View) {
         presenter.stop()
         deleteMenuItem?.setOnMenuItemClickListener(null)
@@ -135,9 +140,9 @@ class MainPageController : BaseHeadRecyclerController(),
         searchMenuItem = menu.findItem(R.id.app_bar_search)
         deleteMenuItem = menu.findItem(R.id.app_bar_delete)
         deleteMenuItem!!.setOnMenuItemClickListener {
-            selectedItems.forEach {
-                mFastItemAdapter?.remove(mFastItemAdapter?.getPosition(it)?:0)
-                presenter.deleteItem(it)
+            selectedItems.forEach { noteItem ->
+                mFastItemAdapter?.remove(mFastItemAdapter?.getPosition(noteItem)?:0)
+                presenter.deleteItem(noteItem)
             }
             selectedItems.clear()
             deleteMenuItem?.isVisible = false
